@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Панель ученика{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <header class="dashboard-header">
+        <h1>Панель ученика</h1>
+        <div class="user-info">
+            <span>Пользователь: <strong>{{ username }}</strong></span>
+            <a href="{{ url_for('logout') }}" class="btn btn-secondary">Выйти</a>
+        </div>
+    </header>
+
+    <div class="dashboard-content">
+        <!-- Задания от учителя -->
+        <section class="section">
+            <h2>📚 Задания от учителя</h2>
+            {% if teacher_files %}
+            <div class="file-list">
+                <table class="file-table">
+                    <thead>
+                        <tr>
+                            <th>Имя файла</th>
+                            <th>Размер</th>
+                            <th>Дата загрузки</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file in teacher_files %}
+                        <tr>
+                            <td>{{ file.name }}</td>
+                            <td>{{ format_size(file.size) }}</td>
+                            <td>{{ file.date }}</td>
+                            <td>
+                                <a href="{{ url_for('student_download', filename=file.name) }}" class="btn btn-small btn-primary">Скачать</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="empty-message">Нет доступных заданий</p>
+            {% endif %}
+        </section>
+
+        <!-- Загрузка выполненного задания -->
+        <section class="section">
+            <h2>📤 Загрузить выполненное задание</h2>
+            <form method="POST" action="{{ url_for('student_upload') }}" enctype="multipart/form-data" class="upload-form">
+                <div class="form-group">
+                    <input type="file" name="file" id="file" required>
+                    <label for="file" class="file-label">Выберите файл</label>
+                </div>
+                <button type="submit" class="btn btn-primary">Загрузить работу</button>
+            </form>
+        </section>
+
+        <!-- Мои загруженные работы -->
+        <section class="section">
+            <h2>📋 Мои загруженные работы</h2>
+            {% if student_files %}
+            <div class="file-list">
+                <table class="file-table">
+                    <thead>
+                        <tr>
+                            <th>Имя файла</th>
+                            <th>Размер</th>
+                            <th>Дата загрузки</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file in student_files %}
+                        <tr>
+                            <td>{{ file.name }}</td>
+                            <td>{{ format_size(file.size) }}</td>
+                            <td>{{ file.date }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="empty-message">Вы еще не загружали работы</p>
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}
+

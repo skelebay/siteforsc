@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Панель учителя{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <header class="dashboard-header">
+        <h1>Панель учителя</h1>
+        <div class="user-info">
+            <span>Пользователь: <strong>{{ username }}</strong></span>
+            <a href="{{ url_for('logout') }}" class="btn btn-secondary">Выйти</a>
+        </div>
+    </header>
+
+    <div class="dashboard-content">
+        <!-- Загрузка задания для учеников -->
+        <section class="section">
+            <h2>📤 Загрузить задание для учеников</h2>
+            <form method="POST" action="{{ url_for('teacher_upload') }}" enctype="multipart/form-data" class="upload-form">
+                <div class="form-group">
+                    <input type="file" name="file" id="file" required>
+                    <label for="file" class="file-label">Выберите файл</label>
+                </div>
+                <button type="submit" class="btn btn-primary">Загрузить задание</button>
+            </form>
+        </section>
+
+        <!-- Задания, загруженные учителем -->
+        <section class="section">
+            <h2>📋 Загруженные задания</h2>
+            {% if teacher_files %}
+            <div class="file-list">
+                <table class="file-table">
+                    <thead>
+                        <tr>
+                            <th>Имя файла</th>
+                            <th>Размер</th>
+                            <th>Дата загрузки</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file in teacher_files %}
+                        <tr>
+                            <td>{{ file.name }}</td>
+                            <td>{{ format_size(file.size) }}</td>
+                            <td>{{ file.date }}</td>
+                            <td>
+                                <a href="{{ url_for('teacher_download', filename=file.name) }}" class="btn btn-small btn-primary">Скачать</a>
+                                <a href="{{ url_for('teacher_delete', filename=file.name) }}" class="btn btn-small btn-danger" onclick="return confirm('Удалить файл?')">Удалить</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="empty-message">Нет загруженных заданий</p>
+            {% endif %}
+        </section>
+
+        <!-- Работы учеников -->
+        <section class="section">
+            <h2>📥 Работы учеников</h2>
+            {% if student_files %}
+            <div class="file-list">
+                <table class="file-table">
+                    <thead>
+                        <tr>
+                            <th>Имя файла</th>
+                            <th>Размер</th>
+                            <th>Дата загрузки</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file in student_files %}
+                        <tr>
+                            <td>{{ file.name }}</td>
+                            <td>{{ format_size(file.size) }}</td>
+                            <td>{{ file.date }}</td>
+                            <td>
+                                <a href="{{ url_for('teacher_download_student', filename=file.name) }}" class="btn btn-small btn-primary">Скачать</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="empty-message">Нет загруженных работ от учеников</p>
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}
+

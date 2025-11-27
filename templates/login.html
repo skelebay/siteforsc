@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Вход в систему{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-box">
+        <h1>Система обмена заданиями</h1>
+        <h2>Вход в систему</h2>
+        <form method="POST" action="{{ url_for('login') }}">
+            <div class="form-group">
+                <label for="username">Имя пользователя:</label>
+                <input type="text" id="username" name="username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Войти</button>
+        </form>
+        <div class="login-info">
+            <p><strong>Учитель:</strong> teacher / teacher123</p>
+            <p><strong>Ученик:</strong> student1 / student123</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
