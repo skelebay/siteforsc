@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, send_file, flash
 import os
+from mimetypes import guess_type
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import json
@@ -76,7 +77,6 @@ def login():
         if username in USERS and USERS[username]['password'] == password:
             session['username'] = username
             session['role'] = USERS[username]['role']
-            flash('Вы успешно вошли в систему!', 'success')
             if USERS[username]['role'] == 'teacher':
                 return redirect(url_for('teacher_dashboard'))
             else:
@@ -145,6 +145,22 @@ def teacher_download(filename):
         return send_file(filepath, as_attachment=True)
     flash('Файл не найден!', 'error')
     return redirect(url_for('teacher_dashboard'))
+
+@app.route('/teacher/view/<path:filename>')
+def teacher_view_file(filename):
+    if 'username' not in session:
+        flash('Доступ запрещен!', 'error')
+        return redirect(url_for('login'))
+
+    safe_name = os.path.basename(filename)
+    filepath = os.path.join(TEACHER_FOLDER, safe_name)
+    if not os.path.exists(filepath):
+        dest = 'teacher_dashboard' if session.get('role') == 'teacher' else 'student_dashboard'
+        flash('Файл не найден!', 'error')
+        return redirect(url_for(dest))
+
+    mimetype, _ = guess_type(filepath)
+    return send_file(filepath, mimetype=mimetype or 'application/octet-stream', as_attachment=False)
 
 @app.route('/teacher/download_student/<filename>')
 def teacher_download_student(filename):
