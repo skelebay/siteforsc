@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, send_file, flash
 import os
+import io
+import zipfile
 from mimetypes import guess_type
 from werkzeug.utils import secure_filename
 from datetime import datetime
@@ -174,6 +176,24 @@ def teacher_download_student(filename):
     flash('Файл не найден!', 'error')
     return redirect(url_for('teacher_dashboard'))
 
+@app.route('/teacher/download_all_students')
+def download_all_students():
+    if 'username' not in session or session['role'] != 'teacher':
+        flash('Доступ запрещен!', 'error')
+        return redirect(url_for('login'))
+
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+        if os.path.exists(STUDENT_FOLDER):
+            for filename in os.listdir(STUDENT_FOLDER):
+                filepath = os.path.join(STUDENT_FOLDER, filename)
+                if os.path.isfile(filepath):
+                    zip_file.write(filepath, arcname=filename)
+
+    buffer.seek(0)
+    archive_name = f"student_works_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
+    return send_file(buffer, mimetype='application/zip', as_attachment=True, download_name=archive_name)
+
 @app.route('/teacher/delete/<filename>')
 def teacher_delete(filename):
     if 'username' not in session or session['role'] != 'teacher':
@@ -220,10 +240,6 @@ def student_upload():
     
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        # Добавляем имя пользователя и дату к имени файла
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        username = session['username']
-        filename = f"{username}_{timestamp}_{filename}"
         filepath = os.path.join(STUDENT_FOLDER, filename)
         file.save(filepath)
         flash(f'Файл "{file.filename}" успешно загружен!', 'success')

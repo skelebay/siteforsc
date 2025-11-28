@@ -219,6 +219,19 @@ body {
     border-bottom: 2px solid #f0f0f0;
 }
 
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.section-header h2 {
+    margin: 0;
+}
+
 .section:last-child {
     border-bottom: none;
 }

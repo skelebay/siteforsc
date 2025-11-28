@@ -62,7 +62,12 @@
 
         <!-- Работы учеников -->
         <section class="section">
-            <h2>📥 Работы учеников</h2>
+            <div class="section-header">
+                <h2>📥 Работы учеников</h2>
+                {% if student_files %}
+                <a href="{{ url_for('download_all_students') }}" class="btn btn-small btn-primary">Скачать все работы</a>
+                {% endif %}
+            </div>
             {% if student_files %}
             <div class="file-list">
                 <table class="file-table">
