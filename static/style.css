@@ -16,27 +16,46 @@ body {
     margin: 0 auto;
 }
 
-/* Сообщения */
+/* Сообщения (всплывающие, не сдвигают сайт) */
 .messages {
-    margin-bottom: 20px;
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 1000;
+    pointer-events: none;
 }
 
 .alert {
-    padding: 15px 20px;
+    padding: 10px 14px;
     border-radius: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     font-weight: 500;
-    animation: slideIn 0.3s ease-out;
+    font-size: 14px;
+    opacity: 0;
+    animation: fadeSlideIn 0.3s ease-out forwards, fadeOut 0.4s ease-in forwards;
+    animation-delay: 0s, 3s; /* появление сразу, исчезновение через 3 сек */
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-@keyframes slideIn {
+@keyframes fadeSlideIn {
     from {
         opacity: 0;
-        transform: translateY(-10px);
+        transform: translateY(-8px);
     }
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-4px);
     }
 }
 
@@ -303,6 +322,131 @@ body {
     padding: 40px;
     background: #f8f9fa;
     border-radius: 8px;
+}
+
+/* Дерево файлов (как проводник) */
+.file-tree {
+    margin-top: 15px;
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 15px 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.file-tree-root,
+.file-tree-children {
+    list-style: none;
+    padding-left: 0;
+    margin-left: 0;
+}
+
+.file-tree-children {
+    margin-left: 20px;
+    border-left: 1px dashed #d0d0d0;
+    padding-left: 15px;
+}
+
+.file-tree-item {
+    margin: 4px 0;
+}
+
+.file-tree-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 6px 8px; /* нормальная высота для папок */
+    border-radius: 4px;
+}
+
+.folder-row {
+    background-color: #f3f8ff;
+    font-weight: 600;
+    color: #0f4c75;
+}
+
+/* Клики по папкам */
+.file-tree-item.folder-node > .file-tree-row.folder-row {
+    cursor: pointer;
+    position: relative;
+    padding-left: 18px;
+}
+
+.file-tree-item.folder-node > .file-tree-row.folder-row::before {
+    content: "▾";
+    position: absolute;
+    left: 4px;
+    font-size: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #0f4c75;
+}
+
+.file-tree-item.folder-node.folder-collapsed > .file-tree-row.folder-row::before {
+    content: "▸";
+}
+
+.file-tree-item.folder-node.folder-collapsed > .file-tree-children {
+    display: none;
+}
+
+.file-row:hover {
+    background-color: #f8f9fa;
+}
+
+/* Сделать строки файлов пониже, чем у папок */
+.file-row {
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+.file-tree-name {
+    flex: 1;
+    font-size: 17px; /* ещё чуть больше текст */
+}
+
+.file-tree-meta {
+    font-size: 11px;
+    color: #777;
+    white-space: nowrap;
+    margin-right: 10px;
+}
+
+.file-tree-actions .btn-small {
+    margin-right: 4px;
+}
+
+/* Едва заметные "служебные" кнопки (очистка / удаление папок) */
+.btn-ghost {
+    background: transparent;
+    color: #999;
+    border: none;
+    padding: 2px 6px;
+    font-size: 11px;
+    text-transform: lowercase;
+}
+
+.btn-ghost:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+    color: #666;
+}
+
+/* Компактные кнопки у файлов в дереве */
+.file-tree .file-tree-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.file-tree .file-tree-actions .btn-small {
+    padding: 7px 11px;
+    font-size: 14px; /* ещё чуть крупнее шрифт на кнопках */
+    line-height: 1.2;
+}
+
+/* В дереве не растягиваем primary-кнопку на всю ширину */
+.file-tree .btn-primary {
+    width: auto;
 }
 
 /* Адаптивность */

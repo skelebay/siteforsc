@@ -21,5 +21,106 @@
         {% block content %}{% endblock %}
     </div>
 </body>
+<script>
+    // Сворачивание/разворачивание папок в дереве файлов
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.file-tree').forEach(function (tree) {
+            // Изначально сворачиваем все папки
+            tree.querySelectorAll('.file-tree-item.folder-node').forEach(function (li) {
+                li.classList.add('folder-collapsed');
+            });
+
+            // Клик по строке папки — переключение состояния
+            tree.querySelectorAll('.file-tree-item.folder-node > .file-tree-row.folder-row')
+                .forEach(function (row) {
+                    row.addEventListener('click', function () {
+                        const li = row.parentElement;
+                        li.classList.toggle('folder-collapsed');
+                    });
+                });
+        });
+
+        // Удаление файлов/папок и очистка классов без перезагрузки страницы
+        const messagesContainer = document.querySelector('.messages');
+
+        function showToast(text, category) {
+            if (!messagesContainer) return;
+            const div = document.createElement('div');
+            div.className = 'alert alert-' + (category || 'info');
+            div.textContent = text;
+            messagesContainer.appendChild(div);
+            // Сообщение само исчезнет благодаря CSS-анимации
+            setTimeout(() => {
+                if (div.parentNode) div.parentNode.removeChild(div);
+            }, 3500);
+        }
+
+        document.body.addEventListener('click', function (event) {
+            const clearBtn = event.target.closest('.js-clear-class');
+            const deleteFolderBtn = event.target.closest('.js-delete-folder');
+            const deleteFileBtn = event.target.closest('.js-delete-file');
+
+            const btn = clearBtn || deleteFolderBtn || deleteFileBtn;
+            if (!btn) return;
+
+            event.preventDefault();
+
+            let confirmText;
+            if (clearBtn) {
+                const className = clearBtn.getAttribute('data-class-name') || '';
+                confirmText = `Очистить всю папку класса ${className}? Все вложенные папки и файлы будут удалены.`;
+            } else if (deleteFolderBtn) {
+                confirmText = 'Удалить папку и все файлы в ней?';
+            } else if (deleteFileBtn) {
+                confirmText = 'Удалить файл?';
+            }
+
+            if (confirmText && !window.confirm(confirmText)) {
+                return;
+            }
+
+            const url = btn.getAttribute('href');
+            if (!url) return;
+
+            const li = btn.closest('li.file-tree-item');
+
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => response.json().catch(() => ({})))
+                .then(data => {
+                    if (data && data.success) {
+                        if (deleteFileBtn || deleteFolderBtn) {
+                            if (li && li.parentNode) {
+                                li.parentNode.removeChild(li);
+                            }
+                        } else if (clearBtn) {
+                            // При очистке класса просто очищаем дочерние элементы корневой папки
+                            const rootLi = clearBtn.closest('li.file-tree-item');
+                            const childrenList = rootLi && rootLi.querySelector('.file-tree-children');
+                            if (childrenList) {
+                                childrenList.innerHTML = '';
+                            }
+                        }
+                        if (data.message) {
+                            showToast(data.message, 'success');
+                        }
+                    } else {
+                        if (data && data.message) {
+                            showToast(data.message, 'error');
+                        } else {
+                            showToast('Ошибка при выполнении операции.', 'error');
+                        }
+                    }
+                })
+                .catch(() => {
+                    showToast('Ошибка связи с сервером.', 'error');
+                });
+        });
+    });
+</script>
 </html>
 

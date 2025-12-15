@@ -15,32 +15,33 @@
     <div class="dashboard-content">
         <!-- Задания от учителя -->
         <section class="section">
-            <h2>📚 Задания от учителя</h2>
-            {% if teacher_files %}
-            <div class="file-list">
-                <table class="file-table">
-                    <thead>
-                        <tr>
-                            <th>Имя файла</th>
-                            <th>Размер</th>
-                            <th>Дата загрузки</th>
-                            <th>Действия</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for file in teacher_files %}
-                        <tr>
-                            <td>{{ file.name }}</td>
-                            <td>{{ format_size(file.size) }}</td>
-                            <td>{{ file.date }}</td>
-                            <td>
-                                <a href="{{ url_for('teacher_view_file', filename=file.name) }}" class="btn btn-small btn-secondary" target="_blank">Просмотр</a>
-                                <a href="{{ url_for('student_download', filename=file.name) }}" class="btn btn-small btn-primary">Скачать</a>
-                            </td>
-                        </tr>
+            <h2>📚 Задания от учителя (как в проводнике)</h2>
+            {% if teacher_tree %}
+            <div class="file-tree">
+                <ul class="file-tree-root">
+                    {% for node in teacher_tree recursive %}
+                        <li class="file-tree-item {% if node.type == 'dir' %}folder-node{% endif %}">
+                            {% if node.type == 'dir' %}
+                                <div class="file-tree-row folder-row">
+                                    <span class="file-tree-name">📁 {{ node.name }}</span>
+                                </div>
+                                {% if node.children %}
+                                    <ul class="file-tree-children">
+                                        {{ loop(node.children) }}
+                                    </ul>
+                                {% endif %}
+                            {% else %}
+                                <div class="file-tree-row file-row">
+                                    <span class="file-tree-name">📄 {{ node.name }}</span>
+                                    <span class="file-tree-actions">
+                                        <a href="{{ url_for('teacher_view_file', filename=node.path) }}" class="btn btn-small btn-secondary" target="_blank">Просмотр</a>
+                                        <a href="{{ url_for('student_download', filename=node.path) }}" class="btn btn-small btn-primary">Скачать</a>
+                                    </span>
+                                </div>
+                            {% endif %}
+                        </li>
                         {% endfor %}
-                    </tbody>
-                </table>
+                </ul>
             </div>
             {% else %}
             <p class="empty-message">Нет доступных заданий</p>
